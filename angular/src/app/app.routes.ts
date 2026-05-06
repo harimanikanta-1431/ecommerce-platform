@@ -5,11 +5,15 @@ import { ProductsComponent } from './pages/products/products.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { UsersComponent } from './pages/users/users.component';
 import { CategoriesComponent } from './pages/categories/categories.component';
+import { LoginComponent } from './pages/login/login.component';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
   {
     path: '',
     component: AdminLayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'products', component: ProductsComponent },

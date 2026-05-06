@@ -29,7 +29,6 @@ import { FormsModule } from '@angular/forms';
                 <th class="text-left px-6 py-4 text-sm font-semibold text-gray-900">Items</th>
                 <th class="text-left px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
                 <th class="text-left px-6 py-4 text-sm font-semibold text-gray-900">Date</th>
-                <th class="text-left px-6 py-4 text-sm font-semibold text-gray-900">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -52,31 +51,27 @@ import { FormsModule } from '@angular/forms';
                       [ngClass]="{
                         'bg-green-100 text-green-800': order.status === 'delivered',
                         'bg-blue-100 text-blue-800': order.status === 'shipped',
+                        'bg-indigo-100 text-indigo-800': order.status === 'paid' || order.status === 'processing',
                         'bg-yellow-100 text-yellow-800': order.status === 'pending',
-                        'bg-red-100 text-red-800': order.status === 'cancelled'
+                        'bg-red-100 text-red-800': order.status === 'cancelled' || order.status === 'refunded'
                       }"
                     >
                       <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="processing">Processing</option>
                       <option value="shipped">Shipped</option>
                       <option value="delivered">Delivered</option>
                       <option value="cancelled">Cancelled</option>
+                      <option value="refunded">Refunded</option>
                     </select>
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-600">{{ order.date | date: 'short' }}</td>
-                  <td class="px-6 py-4">
-                    <button
-                      (click)="viewOrder(order.id)"
-                      class="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                    >
-                      View
-                    </button>
-                  </td>
                 </tr>
               </ng-container>
 
               <ng-template #loadingRows>
                 <tr *ngFor="let i of [1,2,3,4,5]">
-                  <td colspan="7" class="px-6 py-4">
+                  <td colspan="6" class="px-6 py-4">
                     <app-loading-skeleton type="table-row"></app-loading-skeleton>
                   </td>
                 </tr>
@@ -105,10 +100,8 @@ export class OrdersComponent implements OnInit {
   }
 
   updateOrderStatus(orderId: string, newStatus: string): void {
-    console.log('Updating order', orderId, 'to status', newStatus);
-  }
-
-  viewOrder(orderId: string): void {
-    console.log('Viewing order', orderId);
+    this.dataService.updateOrderStatus(orderId, newStatus as Order['status']).subscribe(updatedOrder => {
+      this.orders.set(this.orders().map(order => order.id === updatedOrder.id ? updatedOrder : order));
+    });
   }
 }

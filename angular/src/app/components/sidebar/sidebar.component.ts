@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterLink } from '@angular/router';
+import { Router, RouterModule, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -83,7 +84,7 @@ import { RouterModule, RouterLink } from '@angular/router';
 
       <!-- Footer -->
       <div class="border-t border-gray-700 pt-4">
-        <button class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors w-full text-left">
+        <button (click)="logout()" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors w-full text-left">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1h12a1 1 0 110 2H4v11a1 1 0 11-2 0V4a1 1 0 011-1h12z" clip-rule="evenodd"></path>
           </svg>
@@ -94,4 +95,14 @@ import { RouterModule, RouterLink } from '@angular/router';
   `,
   styles: []
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigateByUrl('/login');
+  }
+}

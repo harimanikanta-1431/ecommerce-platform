@@ -151,14 +151,25 @@ export class CategoriesComponent implements OnInit {
   }
 
   saveCategory(): void {
-    console.log('Saving category:', this.formData);
-    this.closeModal();
+    const request = this.editingCategory()
+      ? this.dataService.updateCategory(this.editingCategory()!.id, this.formData)
+      : this.dataService.createCategory(this.formData);
+
+    request.subscribe(category => {
+      if (this.editingCategory()) {
+        this.categories.set(this.categories().map(item => item.id === category.id ? category : item));
+      } else {
+        this.categories.set([...this.categories(), category]);
+      }
+      this.closeModal();
+    });
   }
 
   deleteCategory(id: string): void {
     if (confirm('Are you sure you want to delete this category?')) {
-      console.log('Deleting category:', id);
-      this.categories.set(this.categories().filter(c => c.id !== id));
+      this.dataService.deleteCategory(id).subscribe(() => {
+        this.categories.set(this.categories().filter(c => c.id !== id));
+      });
     }
   }
 }

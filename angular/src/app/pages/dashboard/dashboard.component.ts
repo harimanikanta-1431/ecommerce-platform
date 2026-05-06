@@ -91,7 +91,7 @@ import { DashboardStats, Order } from '../../models';
                 </td>
 
                 <td class="px-6 py-4 font-semibold">
-                  {{ '$' + (order.amount ?? 0).toFixed(2) }}
+                  {{ '$' + order.amount.toFixed(2) }}
                 </td>
 
                 <td class="px-6 py-4">

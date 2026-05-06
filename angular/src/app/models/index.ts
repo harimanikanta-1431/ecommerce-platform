@@ -3,10 +3,11 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  country: string;
-  createdAt: Date;
-  status: string;
+  phone?: string;
+  country?: string;
+  createdAt: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  role: 'ADMIN' | 'CUSTOMER';
 }
 
 // Product model
@@ -17,6 +18,7 @@ export interface Product {
   price: number;
   stock: number;
   category: string;
+  categoryId: string;
   image: string;
   rating: number;
   reviews: number;
@@ -29,8 +31,8 @@ export interface Order {
   userId: string;
   userName: string;
   amount: number;
-  status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
-  date: Date;
+  status: 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  date: string;
   items: number;
 }
 
@@ -40,7 +42,7 @@ export interface Category {
   name: string;
   description: string;
   productCount: number;
-  createdAt: Date;
+  createdAt: string;
 }
 
 // Stats model
@@ -53,4 +55,33 @@ export interface DashboardStats {
   ordersGrowth: number;
   usersGrowth: number;
   productsGrowth: number;
+}
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'ADMIN' | 'CUSTOMER';
+  status: 'ACTIVE' | 'INACTIVE';
+}
+
+export interface AuthSession {
+  accessToken: string;
+  user: AuthUser;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string | string[];
+}
+
+export interface Paginated<T> {
+  data: T[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
 }

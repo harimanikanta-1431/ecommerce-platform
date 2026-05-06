@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
-import { Product } from '../../models';
+import { Category, Product } from '../../models';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
 
@@ -51,7 +51,7 @@ import { LoadingSkeletonComponent } from '../../components/loading-skeleton/load
                       <img
                         [src]="product.image"
                         [alt]="product.name"
-                        class="w-10 h-10 rounded bg-gray-100"
+                        class="w-10 h-10 rounded bg-gray-100 object-cover"
                       />
                       <div>
                         <p class="font-semibold text-gray-900">{{ product.name }}</p>
@@ -167,16 +167,35 @@ import { LoadingSkeletonComponent } from '../../components/loading-skeleton/load
         <div>
           <label class="block text-sm font-semibold text-gray-900 mb-2">Category</label>
           <select
-            [(ngModel)]="formData.category"
-            name="category"
+            [(ngModel)]="formData.categoryId"
+            name="categoryId"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select category</option>
-            <option>Electronics</option>
-            <option>Accessories</option>
-            <option>Office</option>
-            <option>Home & Garden</option>
+            <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
           </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 mb-2">Image URL</label>
+          <input
+            type="url"
+            [(ngModel)]="formData.image"
+            name="image"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="https://example.com/product.jpg"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 mb-2">Upload Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            (change)="onImageSelected($event)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <p *ngIf="uploadingImage()" class="text-xs text-blue-600 mt-2">Uploading image...</p>
         </div>
       </form>
     </app-modal>
@@ -185,20 +204,24 @@ import { LoadingSkeletonComponent } from '../../components/loading-skeleton/load
 })
 export class ProductsComponent implements OnInit {
   products = signal<Product[]>([]);
+  categories = signal<Category[]>([]);
   showModal = signal(false);
   editingProduct = signal<Product | null>(null);
+  uploadingImage = signal(false);
   formData = {
     name: '',
     description: '',
     price: 0,
     stock: 0,
-    category: ''
+    categoryId: '',
+    image: ''
   };
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadCategories();
   }
 
   loadProducts(): void {
@@ -207,9 +230,22 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  loadCategories(): void {
+    this.dataService.getCategories().subscribe(data => {
+      this.categories.set(data);
+    });
+  }
+
   openAddModal(): void {
     this.editingProduct.set(null);
-    this.formData = { name: '', description: '', price: 0, stock: 0, category: '' };
+    this.formData = {
+      name: '',
+      description: '',
+      price: 0,
+      stock: 0,
+      categoryId: this.categories()[0]?.id ?? '',
+      image: ''
+    };
     this.showModal.set(true);
   }
 
@@ -220,7 +256,8 @@ export class ProductsComponent implements OnInit {
       description: product.description,
       price: product.price,
       stock: product.stock,
-      category: product.category
+      categoryId: product.categoryId,
+      image: product.image
     };
     this.showModal.set(true);
   }
@@ -231,15 +268,47 @@ export class ProductsComponent implements OnInit {
   }
 
   saveProduct(): void {
-    // In a real app, this would make an API call
-    console.log('Saving product:', this.formData);
-    this.closeModal();
+    if (!this.formData.categoryId) {
+      return;
+    }
+
+    const request = this.editingProduct()
+      ? this.dataService.updateProduct(this.editingProduct()!.id, this.formData)
+      : this.dataService.createProduct(this.formData);
+
+    request.subscribe(product => {
+      if (this.editingProduct()) {
+        this.products.set(this.products().map(item => item.id === product.id ? product : item));
+      } else {
+        this.products.set([product, ...this.products()]);
+      }
+      this.closeModal();
+    });
   }
 
   deleteProduct(id: string): void {
     if (confirm('Are you sure you want to delete this product?')) {
-      console.log('Deleting product:', id);
-      this.products.set(this.products().filter(p => p.id !== id));
+      this.dataService.deleteProduct(id).subscribe(() => {
+        this.products.set(this.products().filter(p => p.id !== id));
+      });
     }
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.uploadingImage.set(true);
+    this.dataService.uploadImage(file).subscribe({
+      next: result => {
+        this.formData.image = result.url;
+        this.uploadingImage.set(false);
+      },
+      error: () => this.uploadingImage.set(false)
+    });
   }
 }

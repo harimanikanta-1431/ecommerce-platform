@@ -48,7 +48,7 @@ import { LoadingSkeletonComponent } from '../../components/loading-skeleton/load
                   <td class="px-6 py-4">
                     <span
                       class="px-3 py-1 text-xs font-semibold rounded-full"
-                      [ngClass]="user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                      [ngClass]="user.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                     >
                       {{ user.status | titlecase }}
                     </span>
@@ -57,16 +57,10 @@ import { LoadingSkeletonComponent } from '../../components/loading-skeleton/load
                   <td class="px-6 py-4">
                     <div class="flex gap-2">
                       <button
-                        (click)="viewUser(user.id)"
-                        class="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      >
-                        View
-                      </button>
-                      <button
                         (click)="toggleUserStatus(user.id)"
                         class="px-3 py-1 text-sm text-orange-600 hover:bg-orange-50 rounded transition-colors"
                       >
-                        {{ user.status === 'active' ? 'Deactivate' : 'Activate' }}
+                        {{ user.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}
                       </button>
                     </div>
                   </td>
@@ -103,17 +97,16 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  viewUser(userId: string): void {
-    console.log('Viewing user', userId);
-  }
-
   toggleUserStatus(userId: string): void {
-    const updatedUsers = this.users().map(user => {
-      if (user.id === userId) {
-        return { ...user, status: user.status === 'active' ? 'inactive' : 'active' };
-      }
-      return user;
+    const user = this.users().find(item => item.id === userId);
+
+    if (!user) {
+      return;
+    }
+
+    const status: User['status'] = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    this.dataService.updateUser(userId, { status }).subscribe(updatedUser => {
+      this.users.set(this.users().map(item => item.id === userId ? updatedUser : item));
     });
-    this.users.set(updatedUsers);
   }
 }

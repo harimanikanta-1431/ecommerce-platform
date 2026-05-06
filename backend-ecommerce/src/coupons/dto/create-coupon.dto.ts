@@ -6,7 +6,7 @@ import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-va
 export class CreateCouponDto {
   @ApiProperty({ example: 'WELCOME10' })
   @IsString()
-  code: string;
+  code!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -15,13 +15,13 @@ export class CreateCouponDto {
 
   @ApiProperty({ enum: CouponType })
   @IsEnum(CouponType)
-  type: CouponType;
+  type!: CouponType;
 
   @ApiProperty({ example: 10 })
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  value: number;
+  value!: number;
 
   @ApiPropertyOptional({ example: 100 })
   @IsOptional()

@@ -18,12 +18,12 @@ export class CreateProductDto {
   @ApiProperty({ example: 'Aurora Noise-Cancelling Headphones' })
   @IsString()
   @MinLength(3)
-  name: string;
+  name!: string;
 
   @ApiProperty()
   @IsString()
   @MinLength(10)
-  description: string;
+  description!: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
@@ -35,7 +35,7 @@ export class CreateProductDto {
   @Type(() => Number)
   @IsNumber()
   @IsPositive()
-  price: number;
+  price!: number;
 
   @ApiPropertyOptional({ example: 249.99 })
   @IsOptional()
@@ -48,11 +48,11 @@ export class CreateProductDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  stock: number;
+  stock!: number;
 
   @ApiProperty()
   @IsString()
-  categoryId: string;
+  categoryId!: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()

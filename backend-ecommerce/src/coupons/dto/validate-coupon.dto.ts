@@ -5,11 +5,11 @@ import { IsNumber, IsString, Min } from 'class-validator';
 export class ValidateCouponDto {
   @ApiProperty({ example: 'WELCOME10' })
   @IsString()
-  code: string;
+  code!: string;
 
   @ApiProperty({ example: 250 })
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  subtotal: number;
+  subtotal!: number;
 }

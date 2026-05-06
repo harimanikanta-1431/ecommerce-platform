@@ -5,7 +5,7 @@ import { IsEnum, IsOptional, IsString } from 'class-validator';
 export class CreatePaymentDto {
   @ApiProperty()
   @IsString()
-  orderId: string;
+  orderId!: string;
 
   @ApiProperty({ enum: PaymentProvider, default: PaymentProvider.COD })
   @IsEnum(PaymentProvider)

@@ -5,7 +5,7 @@ export class CreateCategoryDto {
   @ApiProperty({ example: 'Electronics' })
   @IsString()
   @MinLength(2)
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional({ example: 'Audio, wearables, work tech' })
   @IsOptional()

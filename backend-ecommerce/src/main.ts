@@ -12,7 +12,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:4200', // Angular Admin
-      'http://localhost:3000', // Next.js Frontend
+      'https://awake-imagination-production-989b.up.railway.app', // Next.js Frontend
       'http://localhost:3001',
     ],
     credentials: true,
